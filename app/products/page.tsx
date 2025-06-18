@@ -12,22 +12,70 @@ interface ProductsPageProps {
 }
 
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
-  const { collection: collectionSlug } = await searchParams
+  const params = await searchParams
+  const { 
+    collection: collectionSlug,
+    minPrice,
+    maxPrice,
+    inStock,
+    sortBy 
+  } = params
   
   const [products, collections] = await Promise.all([
     getProducts(),
     getCollections()
   ])
 
-  // Filter products by collection if specified
+  // Apply filters
   let filteredProducts = products
+
+  // Filter by collection
   if (collectionSlug && typeof collectionSlug === 'string') {
     const selectedCollection = collections.find(c => c.slug === collectionSlug)
     if (selectedCollection) {
-      filteredProducts = products.filter(product => 
+      filteredProducts = filteredProducts.filter(product => 
         product.metadata?.collections?.some(c => c.id === selectedCollection.id)
       )
     }
+  }
+
+  // Filter by price range
+  if (minPrice || maxPrice) {
+    const min = minPrice ? parseFloat(minPrice as string) : 0
+    const max = maxPrice ? parseFloat(maxPrice as string) : Infinity
+    filteredProducts = filteredProducts.filter(product => {
+      const price = product.metadata?.price || 0
+      return price >= min && price <= max
+    })
+  }
+
+  // Filter by stock status
+  if (inStock === 'true') {
+    filteredProducts = filteredProducts.filter(product => 
+      product.metadata?.in_stock === true || 
+      (product.metadata?.stock_quantity && product.metadata.stock_quantity > 0)
+    )
+  }
+
+  // Sort products
+  if (sortBy && typeof sortBy === 'string') {
+    filteredProducts = [...filteredProducts].sort((a, b) => {
+      switch (sortBy) {
+        case 'price-low':
+          return (a.metadata?.price || 0) - (b.metadata?.price || 0)
+        case 'price-high':
+          return (b.metadata?.price || 0) - (a.metadata?.price || 0)
+        case 'name-asc':
+          return a.title.localeCompare(b.title)
+        case 'name-desc':
+          return b.title.localeCompare(a.title)
+        case 'oldest':
+          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+        case 'newest':
+        default:
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      }
+    })
   }
 
   return (

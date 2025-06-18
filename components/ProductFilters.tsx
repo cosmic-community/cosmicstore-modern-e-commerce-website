@@ -1,31 +1,71 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Collection } from '@/types'
 
 interface ProductFiltersProps {
   collections: Collection[]
-  onFiltersChange: (filters: {
-    collection?: string
-    priceRange?: [number, number]
-    inStock?: boolean
-    sortBy?: string
-  }) => void
 }
 
-export default function ProductFilters({ collections, onFiltersChange }: ProductFiltersProps) {
+export default function ProductFilters({ collections }: ProductFiltersProps) {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  
   const [selectedCollection, setSelectedCollection] = useState<string>('')
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000])
   const [inStockOnly, setInStockOnly] = useState<boolean>(false)
   const [sortBy, setSortBy] = useState<string>('newest')
 
-  const handleFiltersUpdate = () => {
-    onFiltersChange({
-      collection: selectedCollection || undefined,
-      priceRange: priceRange,
-      inStock: inStockOnly || undefined,
-      sortBy: sortBy
+  // Initialize state from URL params
+  useEffect(() => {
+    const collection = searchParams.get('collection') || ''
+    const minPrice = searchParams.get('minPrice') || '0'
+    const maxPrice = searchParams.get('maxPrice') || '1000'
+    const inStock = searchParams.get('inStock') === 'true'
+    const sort = searchParams.get('sortBy') || 'newest'
+
+    setSelectedCollection(collection)
+    setPriceRange([parseInt(minPrice), parseInt(maxPrice)])
+    setInStockOnly(inStock)
+    setSortBy(sort)
+  }, [searchParams])
+
+  const updateURL = (updates: Record<string, string | undefined>) => {
+    const params = new URLSearchParams(searchParams.toString())
+    
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value && value !== '' && value !== '0' && value !== 'false') {
+        params.set(key, value)
+      } else {
+        params.delete(key)
+      }
     })
+
+    router.push(`/products?${params.toString()}`)
+  }
+
+  const handleCollectionChange = (collection: string) => {
+    setSelectedCollection(collection)
+    updateURL({ collection: collection || undefined })
+  }
+
+  const handlePriceRangeChange = (newRange: [number, number]) => {
+    setPriceRange(newRange)
+    updateURL({
+      minPrice: newRange[0] > 0 ? newRange[0].toString() : undefined,
+      maxPrice: newRange[1] < 1000 ? newRange[1].toString() : undefined
+    })
+  }
+
+  const handleInStockChange = (inStock: boolean) => {
+    setInStockOnly(inStock)
+    updateURL({ inStock: inStock ? 'true' : undefined })
+  }
+
+  const handleSortChange = (sort: string) => {
+    setSortBy(sort)
+    updateURL({ sortBy: sort !== 'newest' ? sort : undefined })
   }
 
   const clearFilters = () => {
@@ -33,7 +73,7 @@ export default function ProductFilters({ collections, onFiltersChange }: Product
     setPriceRange([0, 1000])
     setInStockOnly(false)
     setSortBy('newest')
-    onFiltersChange({})
+    router.push('/products')
   }
 
   return (
@@ -56,10 +96,7 @@ export default function ProductFilters({ collections, onFiltersChange }: Product
           </label>
           <select
             value={selectedCollection}
-            onChange={(e) => {
-              setSelectedCollection(e.target.value)
-              handleFiltersUpdate()
-            }}
+            onChange={(e) => handleCollectionChange(e.target.value)}
             className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
           >
             <option value="">All Collections</option>
@@ -84,8 +121,7 @@ export default function ProductFilters({ collections, onFiltersChange }: Product
                 value={priceRange[0]}
                 onChange={(e) => {
                   const newRange: [number, number] = [Number(e.target.value), priceRange[1]]
-                  setPriceRange(newRange)
-                  handleFiltersUpdate()
+                  handlePriceRangeChange(newRange)
                 }}
                 className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               />
@@ -96,8 +132,7 @@ export default function ProductFilters({ collections, onFiltersChange }: Product
                 value={priceRange[1]}
                 onChange={(e) => {
                   const newRange: [number, number] = [priceRange[0], Number(e.target.value)]
-                  setPriceRange(newRange)
-                  handleFiltersUpdate()
+                  handlePriceRangeChange(newRange)
                 }}
                 className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               />
@@ -111,10 +146,7 @@ export default function ProductFilters({ collections, onFiltersChange }: Product
             <input
               type="checkbox"
               checked={inStockOnly}
-              onChange={(e) => {
-                setInStockOnly(e.target.checked)
-                handleFiltersUpdate()
-              }}
+              onChange={(e) => handleInStockChange(e.target.checked)}
               className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
             />
             <span className="text-sm text-gray-700">In Stock Only</span>
@@ -128,10 +160,7 @@ export default function ProductFilters({ collections, onFiltersChange }: Product
           </label>
           <select
             value={sortBy}
-            onChange={(e) => {
-              setSortBy(e.target.value)
-              handleFiltersUpdate()
-            }}
+            onChange={(e) => handleSortChange(e.target.value)}
             className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
           >
             <option value="newest">Newest First</option>
