@@ -1,11 +1,13 @@
 import Link from 'next/link'
 import { Product, formatPrice } from '@/types'
+import AddToCartButton from './AddToCartButton'
 
 interface ProductCardProps {
   product: Product
+  showAddToCart?: boolean
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
+export default function ProductCard({ product, showAddToCart = true }: ProductCardProps) {
   const featuredImage = product.metadata?.featured_image
   const price = product.metadata?.price || 0
   const inStock = product.metadata?.in_stock ?? true
@@ -28,33 +30,42 @@ export default function ProductCard({ product }: ProductCardProps) {
             </div>
           )}
         </div>
+      </Link>
         
-        <div className="p-4">
+      <div className="p-4">
+        <Link href={`/products/${product.slug}`}>
           <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-primary-600">
             {product.title}
           </h3>
+        </Link>
+        
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-2xl font-bold text-primary-600">
+            {formatPrice(price)}
+          </span>
           
-          <div className="flex items-center justify-between">
-            <span className="text-2xl font-bold text-primary-600">
-              {formatPrice(price)}
+          {!inStock && (
+            <span className="text-sm text-red-600 font-medium">
+              Out of Stock
             </span>
-            
-            {!inStock && (
-              <span className="text-sm text-red-600 font-medium">
-                Out of Stock
-              </span>
-            )}
-          </div>
-
-          {product.metadata?.collections && product.metadata.collections.length > 0 && (
-            <div className="mt-2">
-              <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                {product.metadata.collections[0]?.title || 'Collection'}
-              </span>
-            </div>
           )}
         </div>
-      </Link>
+
+        {product.metadata?.collections && product.metadata.collections.length > 0 && (
+          <div className="mb-3">
+            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+              {product.metadata.collections[0]?.title || 'Collection'}
+            </span>
+          </div>
+        )}
+
+        {showAddToCart && (
+          <AddToCartButton 
+            product={product}
+            className="w-full text-sm py-2"
+          />
+        )}
+      </div>
     </div>
   )
 }

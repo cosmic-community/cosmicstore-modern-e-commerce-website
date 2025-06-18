@@ -1,5 +1,6 @@
 import { Product, Review, formatPrice, getRatingNumber } from '@/types'
 import ReviewCard from './ReviewCard'
+import AddToCartButton from './AddToCartButton'
 
 interface ProductDetailsProps {
   product: Product
@@ -110,16 +111,10 @@ export default function ProductDetails({ product, reviews = [] }: ProductDetails
           )}
 
           <div className="space-y-4">
-            <button
-              disabled={!inStock}
-              className={`w-full py-3 px-6 rounded-lg font-medium transition-colors ${
-                inStock
-                  ? 'bg-primary-600 text-white hover:bg-primary-700'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              }`}
-            >
-              {inStock ? 'Add to Cart' : 'Out of Stock'}
-            </button>
+            <AddToCartButton 
+              product={product}
+              className="w-full"
+            />
             
             <button className="w-full py-3 px-6 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors">
               Add to Wishlist
