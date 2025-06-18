@@ -15,13 +15,13 @@ export default function Hero() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link 
               href="/products" 
-              className="btn btn-primary bg-white text-primary-600 hover:bg-gray-100 px-8 py-3 text-lg"
+              className="inline-block bg-white text-primary-600 hover:bg-gray-100 transition-colors duration-200 px-8 py-3 text-lg font-semibold rounded-lg shadow-md hover:shadow-lg"
             >
               Shop Now
             </Link>
             <Link 
               href="/collections" 
-              className="btn btn-outline border-white text-white hover:bg-white hover:text-primary-600 px-8 py-3 text-lg"
+              className="inline-block border-2 border-white text-white hover:bg-white hover:text-primary-600 transition-colors duration-200 px-8 py-3 text-lg font-semibold rounded-lg"
             >
               Browse Collections
             </Link>
