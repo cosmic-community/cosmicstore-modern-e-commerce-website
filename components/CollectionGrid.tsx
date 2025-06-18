@@ -46,12 +46,6 @@ export function CollectionGrid({ collections }: CollectionGridProps) {
                 {collection.metadata.description}
               </p>
             )}
-            
-            {collection.metadata?.product_count && (
-              <div className="mt-4 flex items-center text-sm text-gray-500">
-                <span>{collection.metadata.product_count} products</span>
-              </div>
-            )}
           </div>
         </Link>
       ))}

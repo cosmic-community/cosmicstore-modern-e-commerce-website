@@ -1,7 +1,7 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getCollection, getProductsByCollection } from '@/lib/cosmic'
-import { ProductGrid } from '@/components/ProductGrid'
+import ProductGrid from '@/components/ProductGrid'
 import { Collection } from '@/types'
 
 interface CollectionPageProps {
@@ -13,6 +13,12 @@ export async function generateMetadata({ params }: CollectionPageProps): Promise
   
   try {
     const collection = await getCollection(slug)
+    
+    if (!collection) {
+      return {
+        title: 'Collection Not Found - CosmicStore',
+      }
+    }
     
     return {
       title: `${collection.title} - CosmicStore`,
@@ -33,6 +39,10 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
       getCollection(slug),
       getProductsByCollection(slug)
     ])
+
+    if (!collection) {
+      notFound()
+    }
 
     return (
       <div className="min-h-screen bg-gray-50">

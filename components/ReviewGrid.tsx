@@ -1,5 +1,5 @@
 import { Review } from '@/types'
-import { ReviewCard } from './ReviewCard'
+import ReviewCard from './ReviewCard'
 
 interface ReviewGridProps {
   reviews: Review[]
