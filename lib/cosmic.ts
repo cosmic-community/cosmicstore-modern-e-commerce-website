@@ -90,13 +90,21 @@ export async function getCollection(slug: string): Promise<Collection | null> {
   }
 }
 
-// Get products by collection
-export async function getProductsByCollection(collectionId: string): Promise<Product[]> {
+// Get products by collection slug
+export async function getProductsByCollection(collectionSlug: string): Promise<Product[]> {
   try {
+    // First get the collection to find its ID
+    const collection = await getCollection(collectionSlug)
+    
+    if (!collection) {
+      return []
+    }
+    
+    // Then query products that have this collection ID in their collections array
     const response = await cosmic.objects
       .find({
         type: 'products',
-        'metadata.collections': collectionId
+        'metadata.collections': collection.id
       })
       .props(['id', 'title', 'slug', 'metadata'])
       .depth(1)
