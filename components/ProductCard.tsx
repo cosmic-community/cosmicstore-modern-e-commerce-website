@@ -49,7 +49,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           {product.metadata?.collections && product.metadata.collections.length > 0 && (
             <div className="mt-2">
               <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                {product.metadata.collections[0].title}
+                {product.metadata.collections[0]?.title || 'Collection'}
               </span>
             </div>
           )}
