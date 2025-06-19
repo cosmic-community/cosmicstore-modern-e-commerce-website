@@ -1,5 +1,5 @@
 <!-- README_START -->
-# CosmicStore - Modern E-commerce Website
+# LFG Cosmic
 
 A modern, responsive e-commerce website built with Next.js 15, TypeScript, and Tailwind CSS, powered by [Cosmic](https://www.cosmicjs.com) CMS. This application showcases products, collections, and customer reviews with a clean, professional design.
 
